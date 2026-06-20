@@ -1,59 +1,171 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Finance Tracker</title>
 
-  <!-- Tipografía Inter desde Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet"
   />
 
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <main class="app">
-    <header class="app-header">
-      <h1>Finance Tracker</h1>
-      <p class="subtitle">¿Cómo vamos este mes?</p>
-    </header>
-
-    <!-- 1 · Resumen del mes -->
-    <section class="card summary">
-      <p class="summary-label">Gastado este mes</p>
-      <p class="summary-total" id="month-total">$0.00</p>
-      <div class="category-breakdown" id="category-breakdown">
-        <!-- Las barras por categoría se generan en app.js -->
+  <div class="layout">
+    <!-- ===================== Sidebar ===================== -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-logo">F</span>
+        <span class="brand-name">Finance Tracker</span>
       </div>
-    </section>
 
-    <!-- 2 · Formulario de nueva transacción -->
-    <section class="card">
-      <h2>Agregar transacción</h2>
+      <nav class="nav">
+        <a class="nav-item is-active" href="#"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+        <a class="nav-item" href="#"><i data-lucide="arrow-left-right"></i> Transacciones</a>
+        <a class="nav-item" href="#"><i data-lucide="wallet"></i> Billetera</a>
+        <a class="nav-item" href="#"><i data-lucide="target"></i> Metas</a>
+        <a class="nav-item" href="#"><i data-lucide="pie-chart"></i> Presupuesto</a>
+        <a class="nav-item" href="#"><i data-lucide="bar-chart-3"></i> Análisis</a>
+        <a class="nav-item" href="#"><i data-lucide="settings"></i> Configuración</a>
+      </nav>
+
+      <div class="nav-footer">
+        <a class="nav-item" href="#"><i data-lucide="help-circle"></i> Ayuda</a>
+        <a class="nav-item" href="#"><i data-lucide="log-out"></i> Cerrar sesión</a>
+        <button class="theme-toggle" id="theme-toggle" title="Cambiar tema">
+          <i data-lucide="sun"></i>
+          <i data-lucide="moon"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ===================== Main ===================== -->
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1>¡Hola de nuevo, Santiago &amp; Carolina!</h1>
+          <p class="subtitle">Es el mejor momento para revisar sus finanzas.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-btn" title="Buscar"><i data-lucide="search"></i></button>
+          <button class="icon-btn" title="Notificaciones"><i data-lucide="bell"></i></button>
+          <div class="profile">
+            <span class="profile-avatar">SC</span>
+            <div class="profile-info">
+              <strong>Santiago &amp; Carolina</strong>
+              <span>Cuenta conjunta</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="toolbar">
+        <div class="chip"><i data-lucide="calendar"></i> <span id="period-label">—</span></div>
+        <div class="toolbar-right">
+          <button class="btn-ghost"><i data-lucide="sliders-horizontal"></i> Administrar widgets</button>
+          <button class="btn-primary" id="open-form"><i data-lucide="plus"></i> Agregar gasto</button>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <section class="kpis">
+        <article class="card kpi">
+          <div class="kpi-top"><span>Balance total</span><i data-lucide="arrow-up-right"></i></div>
+          <p class="kpi-value" id="kpi-balance">—</p>
+          <p class="kpi-delta" id="kpi-balance-delta"></p>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-top"><span>Ingresos</span><i data-lucide="arrow-up-right"></i></div>
+          <p class="kpi-value" id="kpi-income">—</p>
+          <p class="kpi-delta" id="kpi-income-delta"></p>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-top"><span>Gastos</span><i data-lucide="arrow-up-right"></i></div>
+          <p class="kpi-value" id="kpi-expense">—</p>
+          <p class="kpi-delta" id="kpi-expense-delta"></p>
+        </article>
+        <article class="card kpi">
+          <div class="kpi-top"><span>Ahorro total</span><i data-lucide="arrow-up-right"></i></div>
+          <p class="kpi-value" id="kpi-savings">—</p>
+          <p class="kpi-delta" id="kpi-savings-delta"></p>
+        </article>
+      </section>
+
+      <!-- Money flow + Budget -->
+      <section class="grid grid-money">
+        <article class="card">
+          <div class="card-head">
+            <h2>Flujo de dinero</h2>
+            <div class="legend-inline">
+              <span><i class="dot dot-income"></i> Ingresos</span>
+              <span><i class="dot dot-expense"></i> Gastos</span>
+            </div>
+          </div>
+          <div class="chart-box"><canvas id="flow-chart"></canvas></div>
+        </article>
+
+        <article class="card">
+          <div class="card-head"><h2>Presupuesto</h2></div>
+          <div class="donut-wrap">
+            <canvas id="budget-chart"></canvas>
+            <div class="donut-center">
+              <span>Gasto total</span>
+              <strong id="budget-total">—</strong>
+            </div>
+          </div>
+          <ul class="legend" id="budget-legend"></ul>
+        </article>
+      </section>
+
+      <!-- Recent transactions + Saving goals -->
+      <section class="grid grid-bottom">
+        <article class="card">
+          <div class="card-head">
+            <h2>Transacciones recientes</h2>
+            <a class="link" href="#">Ver todas</a>
+          </div>
+          <table class="txn-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Monto</th>
+                <th>Nombre</th>
+                <th>Método</th>
+                <th>Categoría</th>
+              </tr>
+            </thead>
+            <tbody id="txn-rows"></tbody>
+          </table>
+        </article>
+
+        <article class="card">
+          <div class="card-head"><h2>Metas de ahorro</h2></div>
+          <ul class="goals" id="goals-list"></ul>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <!-- ===================== Modal: agregar gasto ===================== -->
+  <div class="modal-overlay" id="modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-head">
+        <h2 id="modal-title">Agregar transacción</h2>
+        <button class="icon-btn" id="close-form" title="Cerrar"><i data-lucide="x"></i></button>
+      </div>
       <form id="transaction-form" class="form">
-        <label>
-          Fecha
+        <label>Fecha
           <input type="date" id="date" name="date" required />
         </label>
-
-        <label>
-          Monto (CAD)
-          <input
-            type="number"
-            id="amount"
-            name="amount"
-            step="0.01"
-            placeholder="-87.43 (gasto) / 1500 (ingreso)"
-            required
-          />
+        <label>Monto (CAD)
+          <input type="number" id="amount" name="amount" step="0.01"
+                 placeholder="-87.43 (gasto) / 1500 (ingreso)" required />
         </label>
-
-        <label>
-          Categoría
+        <label>Categoría
           <select id="category" name="category" required>
             <option value="Groceries">Groceries</option>
             <option value="Entertainment">Entertainment</option>
@@ -64,35 +176,27 @@
             <option value="Others">Others</option>
           </select>
         </label>
-
-        <label>
-          Comercio / Descripción
+        <label>Comercio / Descripción
           <input type="text" id="merchant" name="merchant" placeholder="No Frills" required />
         </label>
-
-        <label>
-          Dueño
+        <label>Cuenta
+          <input type="text" id="account" name="account" placeholder="CIBC Credit Card" />
+        </label>
+        <label>Dueño
           <select id="owner" name="owner" required>
             <option value="Santiago">Santiago</option>
             <option value="Carolina">Carolina</option>
             <option value="Joint">Joint</option>
           </select>
         </label>
-
-        <button type="submit" id="submit-btn">Guardar gasto</button>
+        <button type="submit" class="btn-primary" id="submit-btn">Guardar gasto</button>
         <p class="form-status" id="form-status" role="status"></p>
       </form>
-    </section>
+    </div>
+  </div>
 
-    <!-- 3 · Transacciones recientes -->
-    <section class="card">
-      <h2>Transacciones recientes</h2>
-      <ul class="transactions" id="transactions-list">
-        <!-- Se generan en app.js -->
-      </ul>
-    </section>
-  </main>
-
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -9,13 +9,18 @@ Endpoints (los que consume el frontend):
     POST /api/transactions   -> crea una transacción
 """
 
-from flask import Flask, jsonify, request
+import os
+
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
 from sheets_client import sheets_get, sheets_post
 
-app = Flask(__name__)
-# Permitir requests desde el frontend (que se abre como archivo local).
+# Carpeta del frontend (sirve estáticos desde el mismo servicio que la API).
+FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend")
+
+app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
+# Permitir requests desde el frontend (útil si se sirve en otro origen).
 CORS(app)
 
 # Categoría que siempre requiere revisión manual.
@@ -53,6 +58,12 @@ def format_amount(raw) -> str:
     if value < 0:
         return f"(${abs(value):.2f})"
     return f"${value:.2f}"
+
+
+@app.route("/")
+def index():
+    """Sirve el dashboard (frontend) desde el mismo servicio que la API."""
+    return send_from_directory(FRONTEND_DIR, "index.html")
 
 
 @app.route("/api/transactions", methods=["GET"])
@@ -103,5 +114,7 @@ def create_transaction():
 
 
 if __name__ == "__main__":
-    # debug=True recarga el servidor al guardar cambios. Solo para desarrollo.
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # Solo para desarrollo local. En producción corre gunicorn (ver Procfile).
+    # El host inyecta el puerto por la variable PORT; localmente cae en 5000.
+    port = int(os.getenv("PORT", "5000"))
+    app.run(host="0.0.0.0", port=port, debug=True)

@@ -1,0 +1,19 @@
+# Blueprint de Render. Define un único servicio web que sirve la API Flask
+# y el frontend estático desde el mismo proceso.
+#
+# Asume que la raíz del repo es esta carpeta (finance-tracker/). Si en tu repo
+# finance-tracker está dentro de un subdirectorio, prefijá ese path en rootDir
+# (ej: rootDir: finance-tracker/backend).
+services:
+  - type: web
+    name: finance-tracker
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      # Se carga a mano en el dashboard de Render (no se versiona). El secreto
+      # real es la URL del Apps Script Web App.
+      - key: SHEETS_API_URL
+        sync: false
