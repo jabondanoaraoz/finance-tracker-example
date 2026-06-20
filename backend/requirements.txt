@@ -1,4 +1,4 @@
 flask
 flask-cors
-gspread
-google-auth
+requests
+python-dotenv

@@ -6,9 +6,14 @@ en 5 segundos: **¿cómo vamos este mes?**
 
 ## Stack
 
-- **Backend:** Python 3 + Flask + [gspread](https://docs.gspread.org) (Google Sheets API v4)
+- **Backend:** Python 3 + Flask (capa HTTP, sin SDK de Google)
 - **Frontend:** HTML + CSS + JavaScript vanilla
-- **Storage:** una hoja de Google Sheets llamada `Finance Tracker`, tab `Raw_Transactions`
+- **Storage:** Google Sheets `Finance Tracker` (tab `Raw_Transactions`), accedido
+  mediante un **Google Apps Script Web App** desplegado como endpoint HTTP
+
+> No se usa la Google Sheets API ni Service Accounts: la organización tiene
+> deshabilitada la creación de keys. Todo el acceso al Sheet pasa por el endpoint
+> de Apps Script, vía `backend/sheets_client.py`.
 
 ## Estructura
 
@@ -18,10 +23,12 @@ finance-tracker/
 ├── README.md
 ├── .gitignore
 ├── backend/
-│   ├── app.py               # servidor Flask (POST/GET /api/transactions)
-│   ├── test_connection.py   # prueba la conexión con Google Sheets
+│   ├── app.py               # endpoints Flask (GET/POST /api/transactions)
+│   ├── sheets_client.py     # cliente del Sheet (sheets_get / sheets_post)
+│   ├── test_connection.py   # prueba el endpoint de Apps Script
 │   ├── requirements.txt     # dependencias Python
-│   └── credentials.json     # Service Account — local, NO va a GitHub
+│   ├── .env                 # SHEETS_API_URL — local, NO va a GitHub
+│   └── .env.example         # plantilla de .env
 └── frontend/
     ├── index.html           # dashboard
     ├── styles.css           # estilos
@@ -30,13 +37,13 @@ finance-tracker/
 
 ## Puesta en marcha
 
-### 1. Google Cloud (una sola vez)
+### 1. Configurar el endpoint (una sola vez)
 
-1. Crear un proyecto en [console.cloud.google.com](https://console.cloud.google.com).
-2. Habilitar **Google Sheets API**.
-3. Crear una **cuenta de servicio** con rol Editor y descargar la clave JSON.
-4. Guardar la clave como `backend/credentials.json`.
-5. Compartir la hoja `Finance Tracker` con el email del service account (como Editor).
+```bash
+cd backend
+cp .env.example .env
+# Editar .env y pegar la URL real del Apps Script Web App (termina en /exec)
+```
 
 ### 2. Backend
 
@@ -61,5 +68,6 @@ Requiere que el backend esté corriendo en `localhost:5000`.
 
 ## Notas
 
-- `credentials.json` está en `.gitignore`: **nunca** se commitea.
+- `backend/.env` está en `.gitignore`: **nunca** se commitea.
+- El `Transaction ID` lo genera el Apps Script — no se envía al crear.
 - Sin autenticación por ahora — pensado para uso en `localhost`.

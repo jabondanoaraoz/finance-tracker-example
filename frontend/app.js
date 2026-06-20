@@ -35,10 +35,16 @@ function formatCAD(value) {
   }).format(value);
 }
 
-// Convierte el campo "Amount (CAD)" (que puede venir como string) a número.
+// Convierte el campo "Amount (CAD)" a número.
+// Puede venir como número (-87.43) o como string contable ("($87.43)" = negativo).
 function parseAmount(raw) {
-  const n = parseFloat(String(raw).replace(/[^0-9.-]/g, ""));
-  return Number.isFinite(n) ? n : 0;
+  if (typeof raw === "number") return raw;
+  const s = String(raw).trim();
+  // En notación contable, los paréntesis indican un valor negativo.
+  const negative = s.includes("(") || s.startsWith("-");
+  const n = parseFloat(s.replace(/[^0-9.]/g, ""));
+  const value = Number.isFinite(n) ? n : 0;
+  return negative ? -value : value;
 }
 
 // ¿La fecha (YYYY-MM-DD) cae en el mes y año actuales?

@@ -1,42 +1,24 @@
 """
-Prueba rápida de conexión con Google Sheets.
+Prueba rápida de conexión con el Apps Script Web App.
 
-Verifica que credentials.json funciona y que podemos abrir la hoja
-"Finance Tracker". Imprime los tabs encontrados y "Connection OK".
+Verifica que SHEETS_API_URL está configurada y que el endpoint responde.
+Imprime cuántas transacciones devuelve y un par de ejemplos.
 
 Uso:
     python test_connection.py
 """
 
-import gspread
-from google.oauth2.service_account import Credentials
-
-# Permisos que necesita el service account: leer/escribir Sheets y Drive.
-SCOPES = [
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive",
-]
-
-# Nombre exacto de la hoja en Google Drive.
-SHEET_NAME = "Finance Tracker"
+from sheets_client import sheets_get
 
 
 def main():
-    # 1. Cargar las credenciales del service account desde el JSON local.
-    creds = Credentials.from_service_account_file("credentials.json", scopes=SCOPES)
+    # Lee todas las transacciones (sin filtros).
+    transactions = sheets_get()
 
-    # 2. Autenticar el cliente de gspread con esas credenciales.
-    client = gspread.authorize(creds)
+    print(f"Transacciones encontradas: {len(transactions)}")
+    for t in transactions[:3]:
+        print(f"  - {t['Transaction ID']} | {t['Date']} | {t['Merchant']} | {t['Amount (CAD)']}")
 
-    # 3. Abrir la hoja por su nombre.
-    spreadsheet = client.open(SHEET_NAME)
-
-    # 4. Imprimir los nombres de todos los tabs encontrados.
-    print("Tabs encontrados:")
-    for ws in spreadsheet.worksheets():
-        print(f"  - {ws.title}")
-
-    # 5. Si llegamos hasta acá sin errores, la conexión funciona.
     print("Connection OK")
 
 

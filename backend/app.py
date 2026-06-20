@@ -1,142 +1,105 @@
 """
 Finance Tracker — backend Flask.
 
-Expone dos endpoints sobre el tab "Raw_Transactions" de la hoja de Google
-Sheets "Finance Tracker":
+Capa HTTP entre el frontend y el Sheet. NO toca Google directamente:
+delega toda la persistencia en sheets_client (Apps Script Web App).
 
-    POST /api/transactions   -> guarda una transacción nueva
-    GET  /api/transactions   -> devuelve todas las transacciones
-
-La conexión con Sheets usa gspread + credentials.json (Service Account).
+Endpoints (los que consume el frontend):
+    GET  /api/transactions   -> lista transacciones (acepta filtros por query)
+    POST /api/transactions   -> crea una transacción
 """
 
-import gspread
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from google.oauth2.service_account import Credentials
 
-# ---------------------------------------------------------------------------
-# Configuración
-# ---------------------------------------------------------------------------
-
-# Permisos del service account: leer/escribir Sheets y Drive.
-SCOPES = [
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive",
-]
-
-SHEET_NAME = "Finance Tracker"
-TAB_NAME = "Raw_Transactions"
-
-# Orden EXACTO de las columnas en el tab Raw_Transactions.
-# Si esto cambia en la hoja, hay que actualizarlo acá también.
-COLUMNS = [
-    "Date",
-    "Account",
-    "Owner",
-    "Merchant",
-    "Amount (CAD)",
-    "Transaction ID",
-    "Raw Category",
-    "App Category",
-    "App Subcategory",
-    "Needs Review",
-]
-
-# Categoría que siempre requiere revisión manual.
-REVIEW_CATEGORY = "Others"
-
-# ---------------------------------------------------------------------------
-# App Flask
-# ---------------------------------------------------------------------------
+from sheets_client import sheets_get, sheets_post
 
 app = Flask(__name__)
 # Permitir requests desde el frontend (que se abre como archivo local).
 CORS(app)
 
+# Categoría que siempre requiere revisión manual.
+REVIEW_CATEGORY = "Others"
 
-def get_worksheet():
-    """Autentica con Google Sheets y devuelve el tab Raw_Transactions."""
-    creds = Credentials.from_service_account_file("credentials.json", scopes=SCOPES)
-    client = gspread.authorize(creds)
-    spreadsheet = client.open(SHEET_NAME)
-    return spreadsheet.worksheet(TAB_NAME)
+# Filtros que el Apps Script entiende en el GET.
+ALLOWED_FILTERS = {
+    "owner",
+    "needs_review",
+    "transaction_id",
+    "category",
+    "from_date",
+    "to_date",
+}
 
 
-def next_transaction_id(worksheet):
+def format_amount(raw) -> str:
     """
-    Genera el próximo ID con formato TXN-001, TXN-002, ...
+    Convierte un monto de entrada al formato string que espera el Apps Script.
 
-    Mira la columna "Transaction ID" de las filas existentes, busca el número
-    más alto y le suma 1. Si la hoja está vacía, arranca en TXN-001.
+    Gasto (negativo)  -> "($45.00)"
+    Ingreso (positivo) -> "$500.00"
+
+    Acepta el monto como número o como string ("-45", "45.00", "($45.00)").
     """
-    col_index = COLUMNS.index("Transaction ID") + 1  # gspread usa índices base 1
-    existing = worksheet.col_values(col_index)[1:]  # saltar el header
+    s = str(raw).strip()
+    # Los paréntesis indican negativo; lo normalizamos a signo menos.
+    if "(" in s and ")" in s:
+        s = "-" + s.replace("(", "").replace(")", "")
+    cleaned = s.replace("$", "").replace(",", "").strip()
+    try:
+        value = float(cleaned)
+    except ValueError:
+        value = 0.0
+    if value < 0:
+        return f"(${abs(value):.2f})"
+    return f"${value:.2f}"
 
-    max_num = 0
-    for value in existing:
-        # Esperamos "TXN-007"; extraemos el número final de forma tolerante.
-        if value.startswith("TXN-"):
-            try:
-                max_num = max(max_num, int(value.split("-")[1]))
-            except (IndexError, ValueError):
-                continue
 
-    return f"TXN-{max_num + 1:03d}"
+@app.route("/api/transactions", methods=["GET"])
+def list_transactions():
+    """Devuelve las transacciones del Sheet, con filtros opcionales por query."""
+    filters = {k: v for k, v in request.args.items() if k in ALLOWED_FILTERS}
+    return jsonify(sheets_get(filters))
 
 
 @app.route("/api/transactions", methods=["POST"])
 def create_transaction():
     """
-    Guarda una transacción nueva en Raw_Transactions.
+    Crea una transacción nueva.
 
-    Body esperado (JSON):
-        date, account, owner, merchant, amount, category, subcategory, description
+    Body esperado del frontend:
+        date, amount, category, merchant, owner, account, subcategory
+    El Transaction ID lo genera el Apps Script — nunca se envía acá.
     """
     data = request.get_json(silent=True) or {}
-
-    worksheet = get_worksheet()
-
-    # ID auto-incremental basado en las filas existentes.
-    transaction_id = next_transaction_id(worksheet)
 
     category = data.get("category", "")
     # "Others" siempre se marca para revisión manual; el resto, no.
     needs_review = "Yes" if category == REVIEW_CATEGORY else "No"
-
     # Si no viene merchant, usamos la descripción como fallback para no perder dato.
     merchant = data.get("merchant") or data.get("description", "")
 
-    # Armamos la fila en el MISMO orden que COLUMNS.
-    row = [
-        data.get("date", ""),
-        data.get("account", ""),
-        data.get("owner", ""),
-        merchant,
-        data.get("amount", ""),
-        transaction_id,
-        category,  # Raw Category: lo que mandó el usuario
-        category,  # App Category: por ahora igual al raw
-        data.get("subcategory", ""),
-        needs_review,
-    ]
+    # Fila en el formato exacto de columnas del Sheet (sin Transaction ID).
+    sheet_row = {
+        "Date": data.get("date", ""),
+        "Account": data.get("account", ""),
+        "Owner": data.get("owner", ""),
+        "Merchant": merchant,
+        "Amount (CAD)": format_amount(data.get("amount", 0)),
+        "Raw Category": category,
+        "App Category": category,
+        "App Subcategory": data.get("subcategory", ""),
+        "Needs Review": needs_review,
+    }
 
-    # append_row agrega la fila al final del tab.
-    worksheet.append_row(row, value_input_option="USER_ENTERED")
+    result = sheets_post({"action": "create", "data": sheet_row})
 
-    return jsonify({"success": True, "transaction_id": transaction_id})
-
-
-@app.route("/api/transactions", methods=["GET"])
-def list_transactions():
-    """
-    Devuelve todas las filas de Raw_Transactions como un array de objetos.
-    Cada objeto usa los nombres de columna como claves.
-    """
-    worksheet = get_worksheet()
-    # get_all_records() usa la primera fila como header y devuelve dicts.
-    records = worksheet.get_all_records()
-    return jsonify(records)
+    # El Apps Script responde {"status": "ok"|"error", ...}: siempre validarlo.
+    if result.get("status") == "ok":
+        return jsonify(
+            {"success": True, "transaction_id": result.get("transaction_id")}
+        )
+    return jsonify({"success": False, "error": result.get("message")}), 502
 
 
 if __name__ == "__main__":
