@@ -11,7 +11,7 @@ services:
     plan: free
     rootDir: backend
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
     envVars:
       # Se carga a mano en el dashboard de Render (no se versiona). El secreto
       # real es la URL del Apps Script Web App.
