@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finance Tracker</title>
+
+  <!-- Tipografía Inter desde Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="app-header">
+      <h1>Finance Tracker</h1>
+      <p class="subtitle">¿Cómo vamos este mes?</p>
+    </header>
+
+    <!-- 1 · Resumen del mes -->
+    <section class="card summary">
+      <p class="summary-label">Gastado este mes</p>
+      <p class="summary-total" id="month-total">$0.00</p>
+      <div class="category-breakdown" id="category-breakdown">
+        <!-- Las barras por categoría se generan en app.js -->
+      </div>
+    </section>
+
+    <!-- 2 · Formulario de nueva transacción -->
+    <section class="card">
+      <h2>Agregar transacción</h2>
+      <form id="transaction-form" class="form">
+        <label>
+          Fecha
+          <input type="date" id="date" name="date" required />
+        </label>
+
+        <label>
+          Monto (CAD)
+          <input
+            type="number"
+            id="amount"
+            name="amount"
+            step="0.01"
+            placeholder="-87.43 (gasto) / 1500 (ingreso)"
+            required
+          />
+        </label>
+
+        <label>
+          Categoría
+          <select id="category" name="category" required>
+            <option value="Groceries">Groceries</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Fixed &amp; Home">Fixed &amp; Home</option>
+            <option value="Medical">Medical</option>
+            <option value="Pets">Pets</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Others">Others</option>
+          </select>
+        </label>
+
+        <label>
+          Comercio / Descripción
+          <input type="text" id="merchant" name="merchant" placeholder="No Frills" required />
+        </label>
+
+        <label>
+          Dueño
+          <select id="owner" name="owner" required>
+            <option value="Santiago">Santiago</option>
+            <option value="Carolina">Carolina</option>
+            <option value="Joint">Joint</option>
+          </select>
+        </label>
+
+        <button type="submit" id="submit-btn">Guardar gasto</button>
+        <p class="form-status" id="form-status" role="status"></p>
+      </form>
+    </section>
+
+    <!-- 3 · Transacciones recientes -->
+    <section class="card">
+      <h2>Transacciones recientes</h2>
+      <ul class="transactions" id="transactions-list">
+        <!-- Se generan en app.js -->
+      </ul>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

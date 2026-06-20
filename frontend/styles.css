@@ -1,0 +1,296 @@
+/* Finance Tracker — estilos
+   Mobile-first (base 390px), centrado, max 640px.
+   Sistema de color: verde on-track, ámbar atención, rojo solo si es necesario. */
+
+:root {
+  --green: #1a6b3a;
+  --amber: #8b6000;
+  --red: #b3261e; /* usar con moderación */
+
+  --ink: #1c1f23; /* texto principal */
+  --muted: #5f6b76; /* texto secundario */
+  --line: #e4e7eb; /* bordes suaves */
+  --bg: #f4f6f8; /* fondo de la app */
+  --card: #ffffff;
+
+  --owner-s: #0f2d6b; /* navy */
+  --owner-c: #0d7377; /* teal */
+  --owner-joint: #d6dbe1; /* gris claro */
+
+  --radius: 14px;
+  --shadow: 0 1px 3px rgba(28, 31, 35, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  /* Números alineados (tabular figures) */
+  font-feature-settings: "tnum" 1;
+  line-height: 1.45;
+}
+
+.app {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+}
+
+.app-header {
+  padding: 8px 4px 16px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* --- Cards --- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.card h2 {
+  margin: 0 0 14px;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+/* --- Resumen del mes --- */
+.summary-label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.summary-total {
+  margin: 4px 0 18px;
+  font-size: 2.4rem;
+  font-weight: 700;
+  font-feature-settings: "tnum" 1;
+}
+
+.category-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cat-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 10px;
+}
+
+.cat-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.cat-amount {
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-feature-settings: "tnum" 1;
+  text-align: right;
+}
+
+.cat-bar {
+  grid-column: 1 / -1;
+  height: 8px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.cat-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--green);
+  transition: width 0.3s ease;
+}
+
+.cat-bar-fill.is-warning {
+  background: var(--amber);
+}
+
+.cat-bar-fill.is-over {
+  background: var(--red);
+}
+
+/* --- Formulario --- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.form input,
+.form select {
+  font: inherit;
+  color: var(--ink);
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.form input:focus,
+.form select:focus {
+  outline: 2px solid var(--owner-s);
+  outline-offset: 1px;
+  border-color: var(--owner-s);
+}
+
+#submit-btn {
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--green);
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+#submit-btn:hover {
+  filter: brightness(1.05);
+}
+
+#submit-btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.form-status {
+  margin: 0;
+  min-height: 1.2em;
+  font-size: 0.85rem;
+}
+
+.form-status.ok {
+  color: var(--green);
+}
+
+.form-status.error {
+  color: var(--red);
+}
+
+/* --- Lista de transacciones --- */
+.transactions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.txn {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.txn:last-child {
+  border-bottom: none;
+}
+
+.txn.needs-review {
+  /* Resaltado ámbar muy sutil */
+  background: #fdf6e7;
+  border-radius: 8px;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.avatar.s {
+  background: var(--owner-s);
+}
+
+.avatar.c {
+  background: var(--owner-c);
+}
+
+.avatar.joint {
+  background: var(--owner-joint);
+  color: var(--ink);
+}
+
+.txn-main {
+  min-width: 0;
+}
+
+.txn-merchant {
+  font-size: 0.92rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.txn-meta {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.txn-amount {
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-feature-settings: "tnum" 1;
+  white-space: nowrap;
+}
+
+.txn-amount.expense {
+  color: var(--ink);
+}
+
+.txn-amount.income {
+  color: var(--green);
+}
+
+.empty {
+  color: var(--muted);
+  font-size: 0.9rem;
+  padding: 8px;
+}
