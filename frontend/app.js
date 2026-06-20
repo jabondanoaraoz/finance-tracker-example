@@ -63,6 +63,13 @@ function todayISO() {
   return new Date(now.getTime() - offset).toISOString().slice(0, 10);
 }
 
+// Normaliza el Date a YYYY-MM-DD para mostrar.
+// El endpoint puede devolverlo como texto plano ("2025-06-01") o como
+// datetime ISO ("2025-06-20T07:00:00.000Z"); nos quedamos con la fecha.
+function formatDate(raw) {
+  return String(raw || "").slice(0, 10);
+}
+
 // Datos del avatar según el dueño.
 function avatarFor(owner) {
   if (owner === "Santiago") return { cls: "s", text: "S" };
@@ -148,7 +155,7 @@ function renderTransactions(transactions) {
       <span class="avatar ${cls}">${text}</span>
       <div class="txn-main">
         <div class="txn-merchant">${t["Merchant"] || "—"}</div>
-        <div class="txn-meta">${t["Date"] || ""} · ${category}</div>
+        <div class="txn-meta">${formatDate(t["Date"])} · ${category}</div>
       </div>
       <span class="txn-amount ${isIncome ? "income" : "expense"}">${formatCAD(amount)}</span>
     `;
