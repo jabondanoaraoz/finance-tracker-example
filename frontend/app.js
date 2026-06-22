@@ -32,10 +32,10 @@ const SAVINGS_GOALS = [
   { name: "Fondo de vacaciones", target: 5000, match: "Vacation Fund" },
 ];
 
-// Paleta para el donut de presupuesto.
+// Paleta verde (oscuro → lima) para el donut de presupuesto.
 const DONUT_COLORS = [
-  "#7b61ff", "#9b87ff", "#b9abff", "#c9bdff",
-  "#d9d0ff", "#6a4ef0", "#8f7bf5",
+  "#163c28", "#1f5236", "#2e7d46", "#4f9c5e",
+  "#7ec850", "#a9dd6b", "#cdeb8e",
 ];
 
 // --- Helpers --------------------------------------------------------------
@@ -176,8 +176,8 @@ function renderFlow(txns) {
     data: {
       labels: months,
       datasets: [
-        { label: "Ingresos", data: income, backgroundColor: "#7b61ff", borderRadius: 6, maxBarThickness: 26 },
-        { label: "Gastos", data: expense, backgroundColor: "#c9bdff", borderRadius: 6, maxBarThickness: 26 },
+        { label: "Ingresos", data: income, backgroundColor: "#b9e75e", borderRadius: 6, maxBarThickness: 26 },
+        { label: "Gastos", data: expense, backgroundColor: "#1f5236", borderRadius: 6, maxBarThickness: 26 },
       ],
     },
     options: {
@@ -185,10 +185,10 @@ function renderFlow(txns) {
       maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        x: { grid: { display: false }, ticks: { color: "#9a99b3" } },
+        x: { grid: { display: false }, ticks: { color: "#8a9a82" } },
         y: {
-          grid: { color: "rgba(154,153,179,0.15)" },
-          ticks: { color: "#9a99b3", callback: (v) => "$" + v.toLocaleString() },
+          grid: { color: "rgba(138,154,130,0.15)" },
+          ticks: { color: "#8a9a82", callback: (v) => "$" + v.toLocaleString() },
         },
       },
     },
