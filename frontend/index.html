@@ -25,13 +25,10 @@
       </div>
 
       <nav class="nav">
-        <a class="nav-item is-active" href="#"><i data-lucide="layout-dashboard"></i> Dashboard</a>
-        <a class="nav-item" href="#"><i data-lucide="arrow-left-right"></i> Transacciones</a>
-        <a class="nav-item" href="#"><i data-lucide="wallet"></i> Billetera</a>
-        <a class="nav-item" href="#"><i data-lucide="target"></i> Metas</a>
-        <a class="nav-item" href="#"><i data-lucide="pie-chart"></i> Presupuesto</a>
-        <a class="nav-item" href="#"><i data-lucide="bar-chart-3"></i> Análisis</a>
-        <a class="nav-item" href="#"><i data-lucide="settings"></i> Configuración</a>
+        <a class="nav-item is-active" href="#sec-dashboard" data-section="sec-dashboard"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+        <a class="nav-item" href="#sec-transacciones" data-section="sec-transacciones"><i data-lucide="arrow-left-right"></i> Transacciones</a>
+        <a class="nav-item" href="#sec-presupuesto" data-section="sec-presupuesto"><i data-lucide="pie-chart"></i> Presupuesto</a>
+        <a class="nav-item" href="#sec-metas" data-section="sec-metas"><i data-lucide="target"></i> Metas</a>
       </nav>
 
       <div class="nav-footer">
@@ -73,7 +70,7 @@
       </div>
 
       <!-- KPIs -->
-      <section class="kpis">
+      <section class="kpis" id="sec-dashboard">
         <article class="card kpi">
           <div class="kpi-top"><span>Balance total</span><i data-lucide="arrow-up-right"></i></div>
           <p class="kpi-value" id="kpi-balance">—</p>
@@ -109,7 +106,7 @@
           <div class="chart-box"><canvas id="flow-chart"></canvas></div>
         </article>
 
-        <article class="card">
+        <article class="card" id="sec-presupuesto">
           <div class="card-head"><h2>Presupuesto</h2></div>
           <div class="donut-wrap">
             <canvas id="budget-chart"></canvas>
@@ -124,7 +121,7 @@
 
       <!-- Recent transactions + Saving goals -->
       <section class="grid grid-bottom">
-        <article class="card">
+        <article class="card" id="sec-transacciones">
           <div class="card-head">
             <h2>Transacciones recientes</h2>
             <a class="link" href="#">Ver todas</a>
@@ -143,7 +140,7 @@
           </table>
         </article>
 
-        <article class="card">
+        <article class="card" id="sec-metas">
           <div class="card-head"><h2>Metas de ahorro</h2></div>
           <ul class="goals" id="goals-list"></ul>
         </article>

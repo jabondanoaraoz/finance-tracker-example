@@ -409,6 +409,46 @@ function toggleTheme() {
   html.setAttribute("data-theme", next);
 }
 
+// --- Navegación del menú --------------------------------------------------
+// Cada item del menú apunta a una sección real del dashboard. Al hacer click
+// hace scroll suave a esa sección; al scrollear se resalta el item visible.
+
+function setupNav() {
+  const navItems = [...document.querySelectorAll(".nav .nav-item")];
+
+  function setActive(id) {
+    navItems.forEach((a) => a.classList.toggle("is-active", a.dataset.section === id));
+  }
+
+  navItems.forEach((a) => {
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      const el = document.getElementById(a.dataset.section);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      setActive(a.dataset.section);
+    });
+  });
+
+  // Scroll-spy por posición: la sección activa es la última cuya parte
+  // superior ya pasó la línea debajo de la barra. Arriba del todo → Dashboard.
+  const sections = navItems
+    .map((a) => document.getElementById(a.dataset.section))
+    .filter(Boolean)
+    .sort((a, b) => a.offsetTop - b.offsetTop);
+
+  function syncActiveOnScroll() {
+    const line = 140; // px desde arriba (deja aire bajo la barra sticky)
+    let current = sections[0];
+    for (const s of sections) {
+      if (s.getBoundingClientRect().top <= line) current = s;
+    }
+    if (current) setActive(current.id);
+  }
+
+  window.addEventListener("scroll", syncActiveOnScroll, { passive: true });
+  syncActiveOnScroll();
+}
+
 // --- Init -----------------------------------------------------------------
 
 document.getElementById("open-form").addEventListener("click", openModal);
@@ -419,5 +459,6 @@ modal.addEventListener("click", (e) => {
 document.getElementById("transaction-form").addEventListener("submit", handleSubmit);
 document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
 
+setupNav();
 if (window.lucide) lucide.createIcons();
 loadData();
