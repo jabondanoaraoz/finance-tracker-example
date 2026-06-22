@@ -55,6 +55,7 @@ body {
   font-feature-settings: "tnum" 1;
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 .layout {
@@ -340,6 +341,12 @@ body {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 20px;
+  min-width: 0; /* evita que el contenido ancho (tabla) estire la grilla */
+}
+
+/* La tabla scrollea dentro de su tarjeta en pantallas angostas */
+.table-wrap {
+  overflow-x: auto;
 }
 
 .card-head {
@@ -757,18 +764,57 @@ body {
     grid-template-columns: 1fr;
   }
   .sidebar {
-    position: static;
+    position: sticky;
+    top: 0;
+    z-index: 40;
     height: auto;
     flex-direction: row;
-    flex-wrap: wrap;
     align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
   }
-  .nav,
+  .brand {
+    padding: 0;
+    flex: none;
+  }
+  .brand-name {
+    display: none;
+  }
+  /* Navegación en fila con scroll horizontal; cada item es una pastilla */
+  .nav {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar {
+    display: none;
+  }
+  .nav-item {
+    white-space: nowrap;
+    padding: 8px 12px;
+    background: var(--bg);
+  }
+  .nav-item.is-active {
+    background: var(--green-soft);
+  }
+  /* En mobile el footer solo deja el toggle de tema, alineado a la derecha */
   .nav-footer {
     flex-direction: row;
-    flex-wrap: wrap;
     border: none;
     padding-top: 0;
+    margin: 0 0 0 auto;
+    gap: 6px;
+  }
+  .nav-footer .nav-item {
+    display: none;
+  }
+  .theme-toggle {
     margin-top: 0;
   }
   .main {
